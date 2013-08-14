@@ -1,0 +1,72 @@
+<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
+<!-- <script type="text/javascript"> -->
+<!-- 	function selectChanged(value) { -->
+<!-- 		document.form[0].submit(); -->
+<!--   		alert("you chose: " + document.form[0]); -->
+<!-- 	} -->
+<!-- </script> -->
+<f:entry>	
+	<f:repeatable var="instance" items="${descriptor.instances}" field="applications">
+		<table width="100%">
+		<f:entry title="${%Application to deploy on Relution}"
+				 field="applicationFile"
+				 help="/plugin/Relution/help-applicationFile.html"
+				 description="${%This should point to a single file. You may use placeholders, e.g. build/Application_*_*.ipa then the first found file will be used}">
+			<f:textbox name="application.applicationFile" value="${application.applicationFile}" />
+		</f:entry>
+	  
+<!-- 		<f:entry title="${%EAS application UUID}" -->
+<!-- 				 field="applicationUUID" -->
+<!-- 				 description="${%The unique identifier of the application. Log in to the EAS administrator panel to obtain the UUID}"> -->
+<!-- 			<f:textbox name="application.applicationUUID" value="${application.applicationUUID}" checkUrl="'descriptorByName/EASPublisher/checkApplicationUUID?value='+escape(this.value)"/> -->
+<!-- 		</f:entry> -->
+		
+<!--		<f:entry field="applicationUUID" -->
+<!--				 title="${%Relution application UUID}" -->
+<!--				 description="${%The unique identifier of the application. Log in to the EAS administrator panel to obtain the UUID}"> -->
+<!--		   <f:select /> -->
+<!--		</f:entry> -->
+		
+		<f:entry field="apiEndpointURL" 
+				 help="/plugin/Relution/help-apiEndpointURL.html"
+				 title="Choose ApiEndpoint URL">
+   			<!-- <f:select onchange="selectChanged(this.value)"/> -->
+   		 	<f:select/>
+		</f:entry>
+
+		<f:advanced>
+			<f:entry title="${%Please enter the Name of the App}"
+				 	 field="applicationName"
+				 	 help="/plugin/Relution/help-applicationName.html"
+				 	 description="${%Into these field you can enter a name for the app. With these name the app will be displayed on the server}">
+				<f:textbox name="application.applicationName" value="${application.applicationName}" />
+			</f:entry>
+			<f:entry title="${%Application icon}"
+					 field="applicationIcon"
+				 	 help="/plugin/Relution/help-applicationIcon.html"
+					 description="${%The application icon to be uploaded to the Relution}">
+					 <f:textbox/>
+				<!-- <f:textbox checkUrl="'descriptorByName/GlobalConfigurationImpl/checkValue?value='+escape(this.value)" /> -->		 
+			</f:entry>
+			<f:entry field="apiReleaseStatus"
+				 	 help="/plugin/Relution/help-apiReleaseStatus.html"
+					 title="Choose the status in which your app will be published">
+   				<f:select />
+			</f:entry>
+			<f:entry field="applicationReleaseNotes"
+				 	 help="/plugin/Relution/help-applicationReleaseNotes.html"
+					 title="Choose an file to upload into relution store"
+					 description="The file will be read an the content will be displayed in the relution store under changeLog">
+   				<f:textbox />
+			</f:entry>
+		</f:advanced>
+		
+		<f:entry>
+            <div align="right">
+            	<f:repeatableDeleteButton />
+            </div>
+        </f:entry>
+		</table>
+	</f:repeatable>
+</f:entry>
+</j:jelly>
