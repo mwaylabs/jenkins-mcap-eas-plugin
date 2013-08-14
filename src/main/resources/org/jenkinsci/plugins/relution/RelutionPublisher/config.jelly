@@ -8,55 +8,36 @@
 <f:entry>	
 	<f:repeatable var="instance" items="${descriptor.instances}" field="applications">
 		<table width="100%">
-		<f:entry title="${%Application to deploy on Relution}"
+		<f:entry title="${%Application file}"
 				 field="applicationFile"
-				 help="/plugin/Relution/help-applicationFile.html"
-				 description="${%This should point to a single file. You may use placeholders, e.g. build/Application_*_*.ipa then the first found file will be used}">
+				 help="/plugin/Relution/help-applicationFile.html">
 			<f:textbox name="application.applicationFile" value="${application.applicationFile}" />
 		</f:entry>
-	  
-<!-- 		<f:entry title="${%EAS application UUID}" -->
-<!-- 				 field="applicationUUID" -->
-<!-- 				 description="${%The unique identifier of the application. Log in to the EAS administrator panel to obtain the UUID}"> -->
-<!-- 			<f:textbox name="application.applicationUUID" value="${application.applicationUUID}" checkUrl="'descriptorByName/EASPublisher/checkApplicationUUID?value='+escape(this.value)"/> -->
-<!-- 		</f:entry> -->
-		
-<!--		<f:entry field="applicationUUID" -->
-<!--				 title="${%Relution application UUID}" -->
-<!--				 description="${%The unique identifier of the application. Log in to the EAS administrator panel to obtain the UUID}"> -->
-<!--		   <f:select /> -->
-<!--		</f:entry> -->
-		
 		<f:entry field="apiEndpointURL" 
 				 help="/plugin/Relution/help-apiEndpointURL.html"
-				 title="Choose ApiEndpoint URL">
-   			<!-- <f:select onchange="selectChanged(this.value)"/> -->
+				 title="Relution configuration">
    		 	<f:select/>
 		</f:entry>
 
 		<f:advanced>
-			<f:entry title="${%Please enter the Name of the App}"
-				 	 field="applicationName"
-				 	 help="/plugin/Relution/help-applicationName.html"
-				 	 description="${%Into these field you can enter a name for the app. With these name the app will be displayed on the server}">
-				<f:textbox name="application.applicationName" value="${application.applicationName}" />
-			</f:entry>
-			<f:entry title="${%Application icon}"
-					 field="applicationIcon"
-				 	 help="/plugin/Relution/help-applicationIcon.html"
-					 description="${%The application icon to be uploaded to the Relution}">
-					 <f:textbox/>
-				<!-- <f:textbox checkUrl="'descriptorByName/GlobalConfigurationImpl/checkValue?value='+escape(this.value)" /> -->		 
-			</f:entry>
 			<f:entry field="apiReleaseStatus"
 				 	 help="/plugin/Relution/help-apiReleaseStatus.html"
-					 title="Choose the status in which your app will be published">
+					 title="${%Relution release status}">
    				<f:select />
+			</f:entry>
+			<f:entry title="Application name (optional)"
+				 	 field="applicationName"
+				 	 help="/plugin/Relution/help-applicationName.html">
+				<f:textbox name="application.applicationName" value="${application.applicationName}" />
+			</f:entry>
+			<f:entry title="Application icon (optional)"
+					 field="applicationIcon"
+				 	 help="/plugin/Relution/help-applicationIcon.html">
+					 <f:textbox/>		 
 			</f:entry>
 			<f:entry field="applicationReleaseNotes"
 				 	 help="/plugin/Relution/help-applicationReleaseNotes.html"
-					 title="Choose an file to upload into relution store"
-					 description="The file will be read an the content will be displayed in the relution store under changeLog">
+					 title="Application change log file (optional)">
    				<f:textbox />
 			</f:entry>
 		</f:advanced>

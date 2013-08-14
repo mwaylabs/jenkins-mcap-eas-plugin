@@ -1,0 +1,29 @@
+Manifest-Version: 1.0
+Group-Id: org.jenkins-ci.plugins
+Short-Name: Relution
+Long-Name: Relution
+Url: http://jenkins-ci.org/plugin/Relution/
+Plugin-Version: 2.0-SNAPSHOT (private-08/14/2013 14:52-christiansteiger)
+Hudson-Version: 1.526
+Jenkins-Version: 1.526
+Plugin-Dependencies: ui-samples-plugin:1.526
+Plugin-Developers: 
+Libraries: /Users/christiansteiger/clone/gitClone/jenkins-mcap-eas-plu
+ gin/target/classes,/Users/christiansteiger/.m2/repository/commons-cod
+ ec/commons-codec/1.8/commons-codec-1.8.jar,/Users/christiansteiger/.m
+ 2/repository/org/apache/httpcomponents/httpclient/4.2.5/httpclient-4.
+ 2.5.jar,/Users/christiansteiger/.m2/repository/commons-digester/commo
+ ns-digester/1.8/commons-digester-1.8.jar,/Users/christiansteiger/.m2/
+ repository/org/apache/httpcomponents/httpcore/4.2.4/httpcore-4.2.4.ja
+ r,/Users/christiansteiger/.m2/repository/com/google/code/typica/typic
+ a/1.7.2/typica-1.7.2.jar,/Users/christiansteiger/.m2/repository/commo
+ ns-beanutils/commons-beanutils/1.8.3/commons-beanutils-1.8.3.jar,/Use
+ rs/christiansteiger/.m2/repository/org/apache/httpcomponents/httpmime
+ /4.2.5/httpmime-4.2.5.jar,/Users/christiansteiger/.m2/repository/comm
+ ons-validator/commons-validator/1.4.0/commons-validator-1.4.0.jar,/Us
+ ers/christiansteiger/.m2/repository/com/google/code/gson/gson/2.2.4/g
+ son-2.2.4.jar,/Users/christiansteiger/.m2/repository/commons-logging/
+ commons-logging/1.1.1/commons-logging-1.1.1.jar
+Resource-Path: /Users/christiansteiger/clone/gitClone/jenkins-mcap-eas
+ -plugin/src/main/webapp
+

@@ -1,4 +1,27 @@
-
+/**
+ * GlobalConfigurationImpl.java
+ * jenkins-mcap-meas-plugin
+ * 
+ * Created by Christian Steiger on 14.08.2013
+ * Copyright (c)
+ * 2013
+ * M-Way Solutions GmbH. All rights reserved.
+ * http://www.mwaysolutions.com
+ * Redistribution and use in source and binary forms, with or without
+ * modification, are not permitted.
+ * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+ * "AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+ * LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS
+ * FOR A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE
+ * COPYRIGHT OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT,
+ * INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES INCLUDING,
+ * BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+ * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER
+ * CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT
+ * LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN
+ * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+ * POSSIBILITY OF SUCH DAMAGE.
+ */
 package org.jenkinsci.plugins.relution;
 
 import hudson.Extension;
@@ -53,6 +76,7 @@ public class GlobalConfigurationImpl extends GlobalConfiguration {
     private String apiOrganization;
     private String response;
     private String apiReleaseStatus;
+    private String gitDescription;
     
     /**
      * executed during startup of the Plugin and instantiate different GlobalConfiguration-Objects.
@@ -72,7 +96,7 @@ public class GlobalConfigurationImpl extends GlobalConfiguration {
      * @param proxyPort
      */
     @DataBoundConstructor
-    public GlobalConfigurationImpl(final String apiEndpoint, final String apiUsername, final String apiPassword, final String apiOrganization, final String apiReleaseStatus, final String proxyHost, final int proxyPort) {
+    public GlobalConfigurationImpl(final String apiEndpoint, final String apiUsername, final String apiPassword, final String apiOrganization, final String apiReleaseStatus, final String gitDescription, final String proxyHost, final int proxyPort) {
         super();
         this.load();
 
@@ -81,6 +105,7 @@ public class GlobalConfigurationImpl extends GlobalConfiguration {
         this.setApiPassword(apiPassword);
         this.setApiOrganization(apiOrganization);
         this.setApiReleaseStatus(apiReleaseStatus);
+        this.setGitDescription(gitDescription);
         this.setProxyHost(proxyHost);
         this.setProxyPort(proxyPort);
     }
@@ -191,9 +216,10 @@ public class GlobalConfigurationImpl extends GlobalConfiguration {
                 this.apiPassword = ((JSONObject)jsonArray.get(index)).get("apiPassword").toString();
                 this.apiOrganization = ((JSONObject)jsonArray.get(index)).get("apiOrganization").toString();
                 this.apiReleaseStatus = ((JSONObject)jsonArray.get(index)).get("apiReleaseStatus").toString();
+                this.gitDescription = ((JSONObject)jsonArray.get(index)).get("gitDescription").toString();
                 this.proxyHost = formData.getString("proxyHost");
                 this.proxyPort = formData.getInt("proxyPort");
-                instances.add(new GlobalConfigurationImpl(this.apiEndpoint, this.apiUsername, this.apiPassword, this.apiOrganization, this.apiReleaseStatus, this.proxyHost, this.proxyPort));
+                instances.add(new GlobalConfigurationImpl(this.apiEndpoint, this.apiUsername, this.apiPassword, this.apiOrganization, this.apiReleaseStatus, this.gitDescription, this.proxyHost, this.proxyPort));
                 loginCredentials.put(((JSONObject)jsonArray.get(index)).get("apiEndpoint").toString(), this.apiUsername + ":" + this.apiOrganization + ":" + this.apiPassword);
             }
     	}
@@ -206,9 +232,10 @@ public class GlobalConfigurationImpl extends GlobalConfiguration {
             this.apiPassword = innerObject.get("apiPassword").toString();
             this.apiOrganization = innerObject.get("apiOrganization").toString();
             this.apiReleaseStatus = innerObject.getString("apiReleaseStatus");
+            this.gitDescription = innerObject.getString("gitDescription");
             this.proxyHost = formData.getString("proxyHost");
             this.proxyPort = formData.getInt("proxyPort");
-            instances.add(new GlobalConfigurationImpl(this.apiEndpoint, this.apiUsername, this.apiPassword, this.apiOrganization, this.apiReleaseStatus, this.proxyHost, this.proxyPort));
+            instances.add(new GlobalConfigurationImpl(this.apiEndpoint, this.apiUsername, this.apiPassword, this.apiOrganization, this.apiReleaseStatus, this.gitDescription, this.proxyHost, this.proxyPort));
             loginCredentials.put(this.apiEndpoint, this.apiUsername + ":" + this.apiOrganization + ":" + this.apiPassword);
     	}
     	System.out.println(formData.toString());
@@ -360,4 +387,19 @@ public class GlobalConfigurationImpl extends GlobalConfiguration {
     public String getApiReleaseStatus() {
     	return this.apiReleaseStatus;
     }
+    
+    /**
+     * @param gitDescription Sets entry of  the textfield gitDescription.
+     */
+    public void setGitDescription(String gitDescription) {
+    	this.gitDescription = gitDescription;
+    }
+    
+    /**
+     * @return actual entered ReleaseStatus.
+     */
+    public String getGitDescription() {
+    	return this.gitDescription;
+    }
+    
  }

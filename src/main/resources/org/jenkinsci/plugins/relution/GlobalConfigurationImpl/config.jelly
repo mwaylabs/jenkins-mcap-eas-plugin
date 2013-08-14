@@ -20,8 +20,7 @@
     <!-- </f:entry> -->
     
     <f:entry title="${%Relution API endpoint}" field="instance">
-		<f:repeatable var="instance" name="apiEndpoint" items="${descriptor.instances}" add="Add"
-					header="Relution URL">
+		<f:repeatable var="instance" name="apiEndpoint" items="${descriptor.instances}" add="Add">
 			<table width="100%">
 				<f:entry title="${%Relution API endpoint}" 
 						 field="apiEndpoint"
@@ -30,37 +29,38 @@
 				</f:entry>
 				<f:entry title="${%Username}"
     		 			 field="apiUsername"
-    		 			 help="/plugin/Relution/help-apiUsername.html"
-    		 			 description="${%Username to authenticate against the backend.}">
+    		 			 help="/plugin/Relution/help-apiUsername.html">
 					<f:textbox />
 				</f:entry>
 				<f:entry title="${%Organization}"
     		 			 field="apiOrganization"
-    		 			 help="/plugin/Relution/help-apiOrganization.html"
-    		 			 description="${%Organization bundled to Username.}">
+    		 			 help="/plugin/Relution/help-apiOrganization.html">
 					<f:textbox />
 				</f:entry>
 				<f:entry title="${%Password}"
 						 field="apiPassword"
-			 			 help="/plugin/Relution/help-apiPassword.html"
-    		 			 description="${%Password matching the given username.}">
+			 			 help="/plugin/Relution/help-apiPassword.html">
 					<f:password />		 
 				</f:entry>
 				<f:validateButton title="${%Test Connection}" 
 								  progress="${%Testing...}"
    								  method="testConnection" 
    								  with="apiEndpoint,apiUsername,apiOrganization,apiPassword" />
-   				<f:entry title="">
+   				<f:entry title="${%Relution Release Statuses}"
+        				 field="apiReleaseStatus"
+    	 			 	 help="/plugin/Relution/help-apiReleaseStatus.html">
+    	 			<f:select/>
+			     	<!-- <f:textbox /> -->
+				</f:entry>
+				<f:entry title="${%Description}"
+    		 			 field="gitDescription"
+    		 			 help="/plugin/Relution/help-gitDescription.html">
+					<f:textbox />
+				</f:entry>
+				<f:entry title="">
 					<div align="right">
 						<f:repeatableDeleteButton value="Delete"/>
 					</div>
-				</f:entry>
-				<f:entry title="${%Relution Release Statuses}"
-        				 field="apiReleaseStatus"
-    	 			 	 help="/plugin/Relution/help-apiReleaseStatus.html"
-    		 			 description="${%The Status in which the app will be published.}">
-    	 			<f:select/>
-			     	<!-- <f:textbox /> -->
 				</f:entry>
 			</table>
 		</f:repeatable>
@@ -68,14 +68,12 @@
 	
 	<f:advanced title="${%Proxy settings}">
     	<f:entry title="${%Host}"
-    			 field="proxyHost"
-    			 description="${%Proxy host (ip or hostname)}">
+    			 field="proxyHost">
 			<f:textbox />
 		</f:entry>
 		
 		<f:entry title="${%Port}"
-				 field="proxyPort"
-				 description="${%Proxy port}">
+				 field="proxyPort">
 			<f:textbox />		 
 		</f:entry>
     </f:advanced>
