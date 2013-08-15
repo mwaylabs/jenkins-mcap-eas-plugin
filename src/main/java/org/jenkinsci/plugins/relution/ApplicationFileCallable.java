@@ -41,8 +41,6 @@ import org.apache.http.ParseException;
 import org.apache.tools.ant.types.FileSet;
 import org.jenkinsci.plugins.relution.entities.ApplicationInformation;
 import org.jenkinsci.plugins.relution.entities.ShortApplicationInformation;
-import org.jenkinsci.plugins.relution.json.APIObject;
-import org.jenkinsci.plugins.relution.net.RequestFactory;
 
 @SuppressWarnings("serial")
 public class ApplicationFileCallable implements FileCallable<Boolean> {
@@ -117,7 +115,7 @@ public class ApplicationFileCallable implements FileCallable<Boolean> {
 					final String uploadedAssetToken = communicator.uploadApplicationAsset("", applicationFile);
 					// this.listener.getLogger().println("[Relution Publisher]: Uploaded application asset (token " + uploadedAssetToken + ")");
 					// -----------------------------------------------------------------
-					final String appObject = communicator.analyzeUploadedApplication(uploadedAssetToken, app.getUUID(), this.application.getApplicationIcon(), this.application.getApiReleaseStatus(), this.application.getApplicationName(), this.application.getApplicationReleaseNotes(), fileSet, communicator);
+					final String appObject = communicator.analyzeUploadedApplication(uploadedAssetToken, app.getUUID(), this.application.getApplicationIcon(), this.application.getApiReleaseStatus(), this.application.getApplicationName(), this.application.getApplicationReleaseNotes(), this.application.getApplicationDescription(), fileSet, communicator);
 					if(appObject.equals("Version already exists. Please delete the old one to upload the same version again.")) {
 						this.listener.getLogger().println("[Relution Publisher]: Version already exists. Please delete the old one to upload the same version again.");
 						return false;
@@ -132,6 +130,10 @@ public class ApplicationFileCallable implements FileCallable<Boolean> {
 		} catch (final ParseException e) {
 			e.printStackTrace();
 		} catch (final URISyntaxException e) {
+			e.printStackTrace();
+		} catch (IllegalArgumentException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
 			e.printStackTrace();
 		}
 

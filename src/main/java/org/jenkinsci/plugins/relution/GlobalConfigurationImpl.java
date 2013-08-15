@@ -76,7 +76,6 @@ public class GlobalConfigurationImpl extends GlobalConfiguration {
     private String apiOrganization;
     private String response;
     private String apiReleaseStatus;
-    private String gitDescription;
     
     /**
      * executed during startup of the Plugin and instantiate different GlobalConfiguration-Objects.
@@ -96,7 +95,7 @@ public class GlobalConfigurationImpl extends GlobalConfiguration {
      * @param proxyPort
      */
     @DataBoundConstructor
-    public GlobalConfigurationImpl(final String apiEndpoint, final String apiUsername, final String apiPassword, final String apiOrganization, final String apiReleaseStatus, final String gitDescription, final String proxyHost, final int proxyPort) {
+    public GlobalConfigurationImpl(final String apiEndpoint, final String apiUsername, final String apiPassword, final String apiOrganization, final String apiReleaseStatus, final String proxyHost, final int proxyPort) {
         super();
         this.load();
 
@@ -105,7 +104,6 @@ public class GlobalConfigurationImpl extends GlobalConfiguration {
         this.setApiPassword(apiPassword);
         this.setApiOrganization(apiOrganization);
         this.setApiReleaseStatus(apiReleaseStatus);
-        this.setGitDescription(gitDescription);
         this.setProxyHost(proxyHost);
         this.setProxyPort(proxyPort);
     }
@@ -216,10 +214,9 @@ public class GlobalConfigurationImpl extends GlobalConfiguration {
                 this.apiPassword = ((JSONObject)jsonArray.get(index)).get("apiPassword").toString();
                 this.apiOrganization = ((JSONObject)jsonArray.get(index)).get("apiOrganization").toString();
                 this.apiReleaseStatus = ((JSONObject)jsonArray.get(index)).get("apiReleaseStatus").toString();
-                this.gitDescription = ((JSONObject)jsonArray.get(index)).get("gitDescription").toString();
                 this.proxyHost = formData.getString("proxyHost");
                 this.proxyPort = formData.getInt("proxyPort");
-                instances.add(new GlobalConfigurationImpl(this.apiEndpoint, this.apiUsername, this.apiPassword, this.apiOrganization, this.apiReleaseStatus, this.gitDescription, this.proxyHost, this.proxyPort));
+                instances.add(new GlobalConfigurationImpl(this.apiEndpoint, this.apiUsername, this.apiPassword, this.apiOrganization, this.apiReleaseStatus, this.proxyHost, this.proxyPort));
                 loginCredentials.put(((JSONObject)jsonArray.get(index)).get("apiEndpoint").toString(), this.apiUsername + ":" + this.apiOrganization + ":" + this.apiPassword);
             }
     	}
@@ -232,10 +229,9 @@ public class GlobalConfigurationImpl extends GlobalConfiguration {
             this.apiPassword = innerObject.get("apiPassword").toString();
             this.apiOrganization = innerObject.get("apiOrganization").toString();
             this.apiReleaseStatus = innerObject.getString("apiReleaseStatus");
-            this.gitDescription = innerObject.getString("gitDescription");
             this.proxyHost = formData.getString("proxyHost");
             this.proxyPort = formData.getInt("proxyPort");
-            instances.add(new GlobalConfigurationImpl(this.apiEndpoint, this.apiUsername, this.apiPassword, this.apiOrganization, this.apiReleaseStatus, this.gitDescription, this.proxyHost, this.proxyPort));
+            instances.add(new GlobalConfigurationImpl(this.apiEndpoint, this.apiUsername, this.apiPassword, this.apiOrganization, this.apiReleaseStatus, this.proxyHost, this.proxyPort));
             loginCredentials.put(this.apiEndpoint, this.apiUsername + ":" + this.apiOrganization + ":" + this.apiPassword);
     	}
     	System.out.println(formData.toString());
@@ -387,19 +383,4 @@ public class GlobalConfigurationImpl extends GlobalConfiguration {
     public String getApiReleaseStatus() {
     	return this.apiReleaseStatus;
     }
-    
-    /**
-     * @param gitDescription Sets entry of  the textfield gitDescription.
-     */
-    public void setGitDescription(String gitDescription) {
-    	this.gitDescription = gitDescription;
-    }
-    
-    /**
-     * @return actual entered ReleaseStatus.
-     */
-    public String getGitDescription() {
-    	return this.gitDescription;
-    }
-    
  }

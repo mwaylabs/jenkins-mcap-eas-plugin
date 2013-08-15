@@ -26,6 +26,7 @@ package org.jenkinsci.plugins.relution;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.reflect.Field;
 import java.lang.reflect.Type;
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -137,12 +138,22 @@ public class RelutionCommunicator {
 	 * @param UUID unique ID of the App that should be uploaded.
 	 * @return Json Object that could be uploaded to the mcap. 
 	 * @throws URISyntaxException
-	 * @throws IOException
-	 * @throws ClientProtocolException
 	 * @throws ParseException 
+	 * @throws ClientProtocolException
+	 * @throws IOException
+	 * @throws IllegalArgumentException
+	 * @throws IllegalAccessException 
 	 */
-	public String analyzeUploadedApplication(final String uploadToken, final String UUID, final String appIcon, final String releaseStatus, final String appName, final String appReleaseNotes, final FileSet fileSet, final RelutionCommunicator communicator) throws URISyntaxException, ParseException,
-			ClientProtocolException, IOException {
+	public String analyzeUploadedApplication(final String uploadToken, 
+											 final String UUID, 
+											 final String appIcon, 
+											 final String releaseStatus, 
+											 final String appName, 
+											 final String appReleaseNotes, 
+											 final String appDescription, 
+											 final FileSet fileSet, 
+											 final RelutionCommunicator communicator) throws URISyntaxException, ParseException,
+			ClientProtocolException, IOException, IllegalArgumentException, IllegalAccessException {
 
 		final Request request = this.getRequestFactory().createAnalyzeUploadedApplication(uploadToken, UUID);
 		final String response = this.getRequestFactory().send(request);
@@ -158,22 +169,28 @@ public class RelutionCommunicator {
 		else {
 			String changedApp = null;
 			if(appName != null && !appName.equals("")) {
-				changedApp = changeApplicationName(response, appName);
+				APIObject.Name apiObjectName = new APIObject.Name();
+				apiObjectName.setDe_DE(appName);
+				apiObjectName.setEn_US(appName);
+				changedApp = changeAPIObject(response, apiObjectName, null, null);
 			}
 			JsonParser jsonReleaseStatusParser = new JsonParser();
 			if(changedApp != null) {
 				if(releaseStatus != null && !releaseStatus.equals("")) {
-					changedApp = changeReleaseStatus(changedApp, releaseStatus);
+					changedApp = changeAPIObject(changedApp, new APIObject.Versions(), "releaseStatus", releaseStatus);
 				}
 			}
 			else {
 				if(releaseStatus != null && !releaseStatus.equals("")) {
-					changedApp = changeReleaseStatus(response, releaseStatus);
+					changedApp = changeAPIObject(response, new APIObject.Versions(), "releaseStatus", releaseStatus);
 				}
 			}
-			if(appIcon != null && !appIcon.equals("") || appReleaseNotes != null && !appReleaseNotes.equals("")) {
+			if(appIcon != null && !appIcon.equals("") || 
+			   appReleaseNotes != null && !appReleaseNotes.equals("") || 
+			   appDescription != null && !appDescription.equals("")) {
 				File applicationIconFile = null;
 				File applicationReleaseNotes = null;
+				File applicationDescription = null;
 				DirectoryScanner scanner = new DirectoryScanner();
 				scanner.setBasedir(fileSet.getDir());
 				scanner.setCaseSensitive(false);
@@ -185,7 +202,12 @@ public class RelutionCommunicator {
 						final String uploadedIconUUID = communicator.uploadApplicationAsset("", applicationIconFile);
 						Request iconRequest = communicator.getRequestFactory().createUploadRequest(uploadedIconUUID, applicationIconFile);
 						final String iconResponse = communicator.getRequestFactory().send(iconRequest);
-						changedApp = changeApplicationIcon(iconResponse, changedApp);
+						
+						//parse the icon out of the json returned by the communicator
+						Type collectionType = new TypeToken<Collection<APIObject.Icon>>(){}.getType();
+				        Collection<APIObject.Icon> uploadedIconCollection = new Gson().fromJson(((JsonObject)new JsonParser().parse(iconResponse)).get("results").toString(), collectionType);
+				        APIObject.Icon changeIcon = (APIObject.Icon)uploadedIconCollection.toArray()[0];
+						changedApp = changeAPIObject(changedApp, changeIcon, null, null);
 					}
 					if(includedFiles[i].equals(appReleaseNotes)) {
 						applicationReleaseNotes = new File(scanner.getBasedir().getAbsolutePath() + File.separator + includedFiles[i]);
@@ -193,7 +215,21 @@ public class RelutionCommunicator {
 						if(log.length() > 256) {
 							log = log.substring(0, 252) + "...";
 				        }
-						changedApp = changeReleaseNotes(changedApp, log);
+						APIObject.Changelog changeLog = new APIObject.Changelog();
+						changeLog.setDe_DE(log);
+						changeLog.setEn_US(log);
+						changedApp = changeAPIObject(changedApp, changeLog, null, null);
+					}
+					if(includedFiles[i].equals(appDescription)) {
+						applicationDescription = new File(scanner.getBasedir().getAbsolutePath() + File.separator + includedFiles[i]);
+						String description = download("file://" + applicationDescription.getAbsolutePath());
+						if(description.length() > 256) {
+							description = description.substring(0, 252) + "...";
+				        }
+						APIObject.Description changeDescription = new APIObject.Description();
+						changeDescription.setDe_DE(description);
+						changeDescription.setEn_US(description);
+						changedApp = changeAPIObject(changedApp, changeDescription, null, null);
 					}
 				}
 			}
@@ -202,6 +238,44 @@ public class RelutionCommunicator {
 			return results.get(0).toString();
 		}
 	}
+	
+	private static String changeAPIObject(String app, Object object, String fieldName, String newFieldValue) throws IllegalArgumentException, IllegalAccessException {
+        Gson gson = new Gson();
+        APIObject apiObject = gson.fromJson(app, APIObject.class);
+        for (int index = 0; index < apiObject.getResults().size(); index++) {
+        	APIObject.Results result = apiObject.getResults().get(index);
+            if (object instanceof APIObject.Versions) {
+            	APIObject.Versions objectVersion = result.getVersions().get(index);
+                for (Field field : objectVersion.getClass().getDeclaredFields()) {
+                    field.setAccessible(true);
+                    String name = field.getName();
+                    if(name.equals(fieldName)) {
+                        field.set(objectVersion, newFieldValue);
+                    }
+                    else {
+                        Object value = field.get(objectVersion);
+                        field.set(objectVersion, value);
+                    }
+                }
+            }
+            for (int j = 0; j < result.getVersions().size(); j++) {
+            	APIObject.Versions version = result.getVersions().get(j);
+                if (object instanceof APIObject.Description) {
+                    version.setDescription((APIObject.Description) object);
+                }
+                if (object instanceof APIObject.Changelog) {
+                    version.setChangelog((APIObject.Changelog) object);
+                }
+                if (object instanceof APIObject.Name) {
+                    version.setName((APIObject.Name) object);
+                }
+                if (object instanceof APIObject.Icon) {
+                    version.setIcon((APIObject.Icon) object);
+                }
+            }
+        }
+        return gson.toJson(apiObject);
+    }
 	
 	private static String download(String url) throws java.io.IOException {
 	    java.io.InputStream s = null;
@@ -215,73 +289,6 @@ public class RelutionCommunicator {
 	        if (s != null) s.close(); 
 	    }
 	    return content.toString();
-	}
-	
-	private static String changeReleaseNotes(String app,  String appReleaseStatus) {
-		Gson gson = new Gson();
-		APIObject.Changelog changeLog = new APIObject.Changelog();
-		changeLog.setDe_DE(appReleaseStatus);
-		changeLog.setEn_US(appReleaseStatus);
-		
-		APIObject apiObject = gson.fromJson(app, APIObject.class);
-		for(int index=0; index<apiObject.getResults().size(); index++) {
-			APIObject.Results result = apiObject.getResults().get(index);
-			for(int j=0; j<result.getVersions().size(); j++) {
-				APIObject.Versions version = result.getVersions().get(j);
-				version.setChangelog(changeLog);
-			}
-		}
-		return gson.toJson(apiObject);
-		
-	}
-	
-	private static String changeApplicationName(String app, String appName) {
-		APIObject.Name apiObjectName = new APIObject.Name();
-		apiObjectName.setDe_DE(appName);
-		apiObjectName.setEn_US(appName);
-		
-		Gson gson = new Gson();
-		APIObject apiObject = gson.fromJson(app, APIObject.class);
-		for(int index=0; index<apiObject.getResults().size(); index++) {
-			APIObject.Results result = apiObject.getResults().get(index);
-			for(int j=0; j<result.getVersions().size(); j++) {
-				APIObject.Versions version = result.getVersions().get(j);
-				version.setName(apiObjectName);
-			}
-		}
-		return gson.toJson(apiObject);
-	}
-	
-	private static String changeApplicationIcon(String iconResponse, String apiObjectResponse) {
-		Gson gson = new Gson();
-		JsonParser jsonParser = new JsonParser();
-		JsonObject jsonObject = (JsonObject)jsonParser.parse(iconResponse);
-		String jsonIcon = jsonObject.get("results").toString();
-		Type collectionType = new TypeToken<Collection<APIObject.Icon>>(){}.getType();
-        Collection<APIObject.Icon> uploadedIconCollection = gson.fromJson(jsonIcon, collectionType);
-        APIObject.Icon icon = (APIObject.Icon)uploadedIconCollection.toArray()[0];
-        APIObject apiObject = gson.fromJson(apiObjectResponse, APIObject.class);
-        for(int i=0; i<apiObject.getResults().size(); i++) {
-        	APIObject.Results results = apiObject.getResults().get(i);
-        	for(int j=0; j<results.getVersions().size(); j++) {
-        		APIObject.Versions versions = results.getVersions().get(j);
-        		versions.setIcon(icon);
-        	}
-        }
-		return gson.toJson(apiObject);
-	}
-	
-	private static String changeReleaseStatus(String app, String status) {
-		System.out.println("change status to: " + status);
-		APIObject apiObject = new Gson().fromJson(app, APIObject.class);
-        for(int index = 0; index < apiObject.getResults().size(); index++) {
-        	APIObject.Results results = apiObject.getResults().get(index);
-            for(int j = 0; j < results.getVersions().size(); j++) {
-            	APIObject.Versions versions = results.getVersions().get(j);
-            	versions.setReleaseStatus(status);
-            }
-        }
-        return new Gson().toJson(apiObject);
 	}
 	
 	/**

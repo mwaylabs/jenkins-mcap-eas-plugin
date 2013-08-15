@@ -240,7 +240,7 @@ public class APIObject {
         private Long modificationDate;
         private Integer rating;
         private Integer ratingCount;
-
+        
         public String getUuid() {
             return uuid;
         }

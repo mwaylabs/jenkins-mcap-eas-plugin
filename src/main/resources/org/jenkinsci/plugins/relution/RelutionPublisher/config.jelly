@@ -40,6 +40,11 @@
 					 title="Application change log file (optional)">
    				<f:textbox />
 			</f:entry>
+			<f:entry title="Description (optional)"
+    		 			 field="applicationDescription"
+    		 			 help="/plugin/Relution/help-applicationDescription.html">
+					<f:textbox />
+				</f:entry>
 		</f:advanced>
 		
 		<f:entry>

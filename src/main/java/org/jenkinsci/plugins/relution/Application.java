@@ -48,6 +48,7 @@ public class Application extends AbstractDescribableImpl<Application> {
     private String apiEndpointURL;
     private String applicationName;
     private String applicationReleaseNotes;
+    private String applicationDescription;
 	
     /**
      * These constructor will be executed every time when the save/submit button will be triggered in the Jenkins. 
@@ -57,13 +58,15 @@ public class Application extends AbstractDescribableImpl<Application> {
      * @param apiReleaseStatus String Representation of the ReleaseState to the app will be published.
      */
     @DataBoundConstructor
-    public Application(final String apiEndpointURL, final String applicationFile, final String applicationIcon, final String apiReleaseStatus, final String applicationName, final String applicationReleaseNotes) {
+    public Application(final String apiEndpointURL, final String applicationFile, final String applicationIcon, final String apiReleaseStatus, final String applicationName, final String applicationReleaseNotes, final String applicationDescription) {
     	this.setApiEndpointURL(apiEndpointURL);
     	this.setApplicationFile(applicationFile);
         this.setApplicationIcon(applicationIcon);
         this.setApiReleaseStatus(apiReleaseStatus);
         this.setApplicationName(applicationName);
         this.setApplicationReleaseNotes(applicationReleaseNotes);
+        System.out.println("Constructor: " + applicationDescription);
+        this.setApplicationDescription(applicationDescription);
     }
 
     /**
@@ -152,6 +155,19 @@ public class Application extends AbstractDescribableImpl<Application> {
     	this.applicationReleaseNotes = applicationReleaseNotes;
     }
     
+    /**
+     * @return Content of the Descriptopm-File which will be set in the TextField.
+     */
+    public String getApplicationDescription() {
+    	return this.applicationDescription;
+    }
+    
+    /**
+     * @param applicationDescription Content that should be set to the app.
+     */
+    public void setApplicationDescription(String applicationDescription) {
+    	this.applicationDescription = applicationDescription;
+    }
 
     /**
      * Descriptor for {@link DescriptorImpl}. Used as a singleton.
@@ -193,35 +209,35 @@ public class Application extends AbstractDescribableImpl<Application> {
         	return items;
         }
         
-        /**
-         * Validates if the enntry in the Inputfield is empty/not empty.
-         * @param value value of the input field applicationName.
-         * @return true if an entry exists, false if no entry exists.
-         * @throws IOException
-         * @throws ServletException
-         */
-        public FormValidation doCheckApplicationName(@QueryParameter final String value)
-                throws IOException, ServletException {
-            if (value.length() == 0) {
-            	return FormValidation.error(Messages.Relution_appName());
-            }
-            return FormValidation.ok();
-        }
+//        /**
+//         * Validates if the enntry in the Inputfield is empty/not empty.
+//         * @param value value of the input field applicationName.
+//         * @return true if an entry exists, false if no entry exists.
+//         * @throws IOException
+//         * @throws ServletException
+//         */
+//        public FormValidation doCheckApplicationName(@QueryParameter final String value)
+//                throws IOException, ServletException {
+//            if (value.length() == 0) {
+//            	return FormValidation.error(Messages.Relution_appName());
+//            }
+//            return FormValidation.ok();
+//        }
         
-        /**
-         * Validates if the entry in the Inputfield is empty/no empty.
-         * @param value value of the input field applicationIcon.
-         * @return true if an entry exists, false if no entry exists.
-         * @throws IOException
-         * @throws ServletException
-         */
-        public FormValidation doCheckApplicationIcon(@QueryParameter final String value)
-                throws IOException, ServletException {
-            if (value.length() == 0) {
-            	return FormValidation.error(Messages.Relution_apiIconIsRequired());
-            }
-            return FormValidation.ok();
-        }
+//        /**
+//         * Validates if the entry in the Inputfield is empty/no empty.
+//         * @param value value of the input field applicationIcon.
+//         * @return true if an entry exists, false if no entry exists.
+//         * @throws IOException
+//         * @throws ServletException
+//         */
+//        public FormValidation doCheckApplicationIcon(@QueryParameter final String value)
+//                throws IOException, ServletException {
+//            if (value.length() == 0) {
+//            	return FormValidation.error(Messages.Relution_apiIconIsRequired());
+//            }
+//            return FormValidation.ok();
+//        }
         
         /**
          * @return List of ReleaseStatuses that the actual app could have.
