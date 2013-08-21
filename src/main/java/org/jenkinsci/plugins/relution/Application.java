@@ -22,22 +22,21 @@
  * ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
  * POSSIBILITY OF SUCH DAMAGE.
  */
+
 package org.jenkinsci.plugins.relution;
 
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
-import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 
-import java.io.IOException;
-import java.util.Map;
+import org.kohsuke.stapler.DataBoundConstructor;
+
+import java.net.URI;
+import java.util.List;
+import java.util.Locale;
 
 import javax.inject.Inject;
-import javax.servlet.ServletException;
-
-import org.kohsuke.stapler.DataBoundConstructor;
-import org.kohsuke.stapler.QueryParameter;
 
 
 public class Application extends AbstractDescribableImpl<Application> {
@@ -49,7 +48,7 @@ public class Application extends AbstractDescribableImpl<Application> {
     private String applicationName;
     private String applicationReleaseNotes;
     private String applicationDescription;
-	
+
     /**
      * These constructor will be executed every time when the save/submit button will be triggered in the Jenkins. 
      * @param apiEndpointURL URL to which the app should communicate.
@@ -58,9 +57,10 @@ public class Application extends AbstractDescribableImpl<Application> {
      * @param apiReleaseStatus String Representation of the ReleaseState to the app will be published.
      */
     @DataBoundConstructor
-    public Application(final String apiEndpointURL, final String applicationFile, final String applicationIcon, final String apiReleaseStatus, final String applicationName, final String applicationReleaseNotes, final String applicationDescription) {
-    	this.setApiEndpointURL(apiEndpointURL);
-    	this.setApplicationFile(applicationFile);
+    public Application(final String apiEndpointURL, final String applicationFile, final String applicationIcon, final String apiReleaseStatus,
+            final String applicationName, final String applicationReleaseNotes, final String applicationDescription) {
+        this.setApiEndpointURL(apiEndpointURL);
+        this.setApplicationFile(applicationFile);
         this.setApplicationIcon(applicationIcon);
         this.setApiReleaseStatus(apiReleaseStatus);
         this.setApplicationName(applicationName);
@@ -73,16 +73,16 @@ public class Application extends AbstractDescribableImpl<Application> {
      * @return URL to which your app will connect.
      */
     public String getApiEndpointURL() {
-    	return this.apiEndpointURL;
+        return this.apiEndpointURL;
     }
-    
+
     /**
      * @param apiEndpointURL Communication endpoint to set.
      */
     public void setApiEndpointURL(final String apiEndpointURL) {
-    	this.apiEndpointURL = apiEndpointURL;
+        this.apiEndpointURL = apiEndpointURL;
     }
-    
+
     /**
      * @return File which will be uploaded to relution.
      */
@@ -110,63 +110,63 @@ public class Application extends AbstractDescribableImpl<Application> {
     public void setApplicationIcon(final String applicationIcon) {
         this.applicationIcon = applicationIcon;
     }
-    
+
     /**
      * @return Publsih your app with the current releasestate.
      */
     public String getApiReleaseStatus() {
-    	return this.apiReleaseStatus;
+        return this.apiReleaseStatus;
     }
-    
+
     /**
      * @param apiReleaseStatus ReleaseState that your app will have after upload to relution.
      */
     public void setApiReleaseStatus(final String apiReleaseStatus) {
-    	this.apiReleaseStatus = apiReleaseStatus;
+        this.apiReleaseStatus = apiReleaseStatus;
     }
-    
+
     /**
      * The Name of these app corresponds to the file which will be uploaded.
      * If the textfield in the Job-Configuration is not null your app will be represented by these name
      * @return The Name of the app in relution store.
      */
     public String getApplicationName() {
-    	return this.applicationName;
+        return this.applicationName;
     }
-    
+
     /**
      * @param applicationName Name of the new uploaded app
      */
-    public void setApplicationName(String applicationName) {
-    	this.applicationName = applicationName;
+    public void setApplicationName(final String applicationName) {
+        this.applicationName = applicationName;
     }
-    
+
     /**
      * @return Content of the Log-File which will be set in the TextField.
      */
     public String getApplicationReleaseNotes() {
-    	return this.applicationReleaseNotes;
+        return this.applicationReleaseNotes;
     }
-    
+
     /**
      * @param applicationReleaseNotes Content that should be set to the app.
      */
-    public void setApplicationReleaseNotes(String applicationReleaseNotes) {
-    	this.applicationReleaseNotes = applicationReleaseNotes;
+    public void setApplicationReleaseNotes(final String applicationReleaseNotes) {
+        this.applicationReleaseNotes = applicationReleaseNotes;
     }
-    
+
     /**
      * @return Content of the Descriptopm-File which will be set in the TextField.
      */
     public String getApplicationDescription() {
-    	return this.applicationDescription;
+        return this.applicationDescription;
     }
-    
+
     /**
      * @param applicationDescription Content that should be set to the app.
      */
-    public void setApplicationDescription(String applicationDescription) {
-    	this.applicationDescription = applicationDescription;
+    public void setApplicationDescription(final String applicationDescription) {
+        this.applicationDescription = applicationDescription;
     }
 
     /**
@@ -180,12 +180,12 @@ public class Application extends AbstractDescribableImpl<Application> {
     @Extension
     public static class DescriptorImpl extends Descriptor<Application> {
 
-    	/**
-    	 * Necessary Object to read the values entered in the GlobalConfigurationScreen.
-    	 */
+        /**
+         * Necessary Object to read the values entered in the GlobalConfigurationScreen.
+         */
         @Inject
         GlobalConfigurationImpl globalConfiguration;
-        
+
         @Override
         public String getDisplayName() {
             return "";
@@ -196,58 +196,68 @@ public class Application extends AbstractDescribableImpl<Application> {
          * @return List of URLs which are entered in the GlobalConfigurationScreen
          */
         public ListBoxModel doFillApiEndpointURLItems() {
-        	Map<String, String> loginCredentials = this.globalConfiguration.getLoginCredentials();
-        	final ListBoxModel items = new ListBoxModel();
-        	try {
-            	for (Map.Entry<String, String> entry : loginCredentials.entrySet()) {
-            		items.add(entry.getKey().toString());
-            	}
-        	}
-        	catch(Exception ex) {
-        		ex.printStackTrace();
-        	}
-        	return items;
+            final List<GlobalConfigurationImpl> configurations = this.globalConfiguration.getInstances();
+            final ListBoxModel items = new ListBoxModel();
+
+            try {
+                for (final GlobalConfigurationImpl config : configurations) {
+
+                    final URI uri = new URI(config.getApiEndpoint());
+
+                    final String displayName = String.format(
+                            Locale.ENGLISH,
+                            "%s — %s@%s",
+                            uri.getHost(),
+                            config.getApiUsername(),
+                            config.getApiOrganization());
+
+                    items.add(displayName);
+                }
+            } catch (final Exception ex) {
+                ex.printStackTrace();
+            }
+            return items;
         }
-        
-//        /**
-//         * Validates if the enntry in the Inputfield is empty/not empty.
-//         * @param value value of the input field applicationName.
-//         * @return true if an entry exists, false if no entry exists.
-//         * @throws IOException
-//         * @throws ServletException
-//         */
-//        public FormValidation doCheckApplicationName(@QueryParameter final String value)
-//                throws IOException, ServletException {
-//            if (value.length() == 0) {
-//            	return FormValidation.error(Messages.Relution_appName());
-//            }
-//            return FormValidation.ok();
-//        }
-        
-//        /**
-//         * Validates if the entry in the Inputfield is empty/no empty.
-//         * @param value value of the input field applicationIcon.
-//         * @return true if an entry exists, false if no entry exists.
-//         * @throws IOException
-//         * @throws ServletException
-//         */
-//        public FormValidation doCheckApplicationIcon(@QueryParameter final String value)
-//                throws IOException, ServletException {
-//            if (value.length() == 0) {
-//            	return FormValidation.error(Messages.Relution_apiIconIsRequired());
-//            }
-//            return FormValidation.ok();
-//        }
-        
+
+        //        /**
+        //         * Validates if the enntry in the Inputfield is empty/not empty.
+        //         * @param value value of the input field applicationName.
+        //         * @return true if an entry exists, false if no entry exists.
+        //         * @throws IOException
+        //         * @throws ServletException
+        //         */
+        //        public FormValidation doCheckApplicationName(@QueryParameter final String value)
+        //                throws IOException, ServletException {
+        //            if (value.length() == 0) {
+        //            	return FormValidation.error(Messages.Relution_appName());
+        //            }
+        //            return FormValidation.ok();
+        //        }
+
+        //        /**
+        //         * Validates if the entry in the Inputfield is empty/no empty.
+        //         * @param value value of the input field applicationIcon.
+        //         * @return true if an entry exists, false if no entry exists.
+        //         * @throws IOException
+        //         * @throws ServletException
+        //         */
+        //        public FormValidation doCheckApplicationIcon(@QueryParameter final String value)
+        //                throws IOException, ServletException {
+        //            if (value.length() == 0) {
+        //            	return FormValidation.error(Messages.Relution_apiIconIsRequired());
+        //            }
+        //            return FormValidation.ok();
+        //        }
+
         /**
          * @return List of ReleaseStatuses that the actual app could have.
          */
         public ListBoxModel doFillApiReleaseStatusItems() {
-        	final ListBoxModel items = new ListBoxModel();
-        	items.add("DEVELOPMENT");
-        	items.add("REVIEW");
-        	items.add("RELEASE");
-        	return items;
+            final ListBoxModel items = new ListBoxModel();
+            items.add("DEVELOPMENT");
+            items.add("REVIEW");
+            items.add("RELEASE");
+            return items;
         }
     }
 }
