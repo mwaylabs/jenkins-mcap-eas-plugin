@@ -211,7 +211,7 @@ public class Application extends AbstractDescribableImpl<Application> {
                             config.getApiUsername(),
                             config.getApiOrganization());
 
-                    items.add(displayName);
+                    items.add(displayName, config.getApiEndpoint());
                 }
             } catch (final Exception ex) {
                 ex.printStackTrace();
