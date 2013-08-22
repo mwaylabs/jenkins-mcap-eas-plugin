@@ -13,25 +13,25 @@
 	<f:entry
 		title="${%Store API URL}"
 		field="url"
-		help="/plugin/Relution/help-apiEndpoint.html">
+		help="/plugin/Relution/help-endpoint-url.html">
 		<f:textbox />
 	</f:entry>
 	<f:entry
 		title="${%User name}"
 		field="username"
-		help="/plugin/Relution/help-apiUsername.html">
+		help="/plugin/Relution/help-endpoint-username.html">
 		<f:textbox />
 	</f:entry>
 	<f:entry
 		title="${%Organization}"
 		field="organization"
-		help="/plugin/Relution/help-apiOrganization.html">
+		help="/plugin/Relution/help-endpoint-organization.html">
 		<f:textbox />
 	</f:entry>
 	<f:entry
 		title="${%Password}"
 		field="password"
-		help="/plugin/Relution/help-apiPassword.html">
+		help="/plugin/Relution/help-endpoint-password.html">
 		<f:password />
 	</f:entry>
 	<f:validateButton
@@ -40,15 +40,15 @@
 		method="testConnection"
 		with="url,username,organization,password" />
 	<f:entry
-		title="${%Application upload status}"
+		title="${%Upload application with status}"
 		field="releaseStatus"
-		help="/plugin/Relution/help-apiReleaseStatus.html">
+		help="/plugin/Relution/help-endpoint-release-status.html">
 		<f:select />
 		<!-- <f:textbox /> -->
 	</f:entry>
 	<f:entry title="">
 		<div align="right">
-			<f:repeatableDeleteButton value="Delete" />
+			<f:repeatableDeleteButton value="${%Delete store}" />
 		</div>
 	</f:entry>
 

@@ -13,7 +13,8 @@
 
 		<f:entry
 			title="${%Relution stores}"
-			field="endpoints">
+			field="endpoints"
+			help="/plugin/Relution/help-endpoints.html">
 			<f:repeatableProperty
 				field="endpoints"
 				add="${%Add store}" />

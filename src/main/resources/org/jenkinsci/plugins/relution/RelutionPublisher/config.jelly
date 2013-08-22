@@ -20,14 +20,14 @@
 				<f:entry
 					title="${%Application file}"
 					field="applicationFile"
-					help="/plugin/Relution/help-applicationFile.html">
+					help="/plugin/Relution/help-app-file.html">
 					<f:textbox
 						name="application.applicationFile"
 						value="${application.applicationFile}" />
 				</f:entry>
 				<f:entry
 					field="apiEndpoint"
-					help="/plugin/Relution/help-apiEndpointURL.html"
+					help="/plugin/Relution/help-app-endpoint.html"
 					title="Relution configuration">
 					<f:select />
 				</f:entry>
@@ -35,14 +35,14 @@
 				<f:advanced>
 					<f:entry
 						field="apiReleaseStatus"
-						help="/plugin/Relution/help-apiReleaseStatus.html"
-						title="${%Relution release status}">
+						help="/plugin/Relution/help-app-release-status.html"
+						title="${%Upload application with status}">
 						<f:select />
 					</f:entry>
 					<f:entry
 						title="Application name (optional)"
 						field="applicationName"
-						help="/plugin/Relution/help-applicationName.html">
+						help="/plugin/Relution/help-app-name.html">
 						<f:textbox
 							name="application.applicationName"
 							value="${application.applicationName}" />
@@ -50,19 +50,19 @@
 					<f:entry
 						title="Application icon (optional)"
 						field="applicationIcon"
-						help="/plugin/Relution/help-applicationIcon.html">
+						help="/plugin/Relution/help-app-icon.html">
 						<f:textbox />
 					</f:entry>
 					<f:entry
 						field="applicationReleaseNotes"
-						help="/plugin/Relution/help-applicationReleaseNotes.html"
-						title="Application change log file (optional)">
+						help="/plugin/Relution/help-app-release-notes.html"
+						title="Change log path (optional)">
 						<f:textbox />
 					</f:entry>
 					<f:entry
-						title="Description (optional)"
+						title="Description path (optional)"
 						field="applicationDescription"
-						help="/plugin/Relution/help-applicationDescription.html">
+						help="/plugin/Relution/help-app-description.html">
 						<f:textbox />
 					</f:entry>
 				</f:advanced>
