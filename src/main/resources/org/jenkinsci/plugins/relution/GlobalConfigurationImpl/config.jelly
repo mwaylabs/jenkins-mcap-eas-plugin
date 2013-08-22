@@ -1,76 +1,36 @@
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-  <!--
-    This Jelly script is used to produce the global configuration option.
+<j:jelly
+	xmlns:j="jelly:core"
+	xmlns:st="jelly:stapler"
+	xmlns:d="jelly:define"
+	xmlns:l="/lib/layout"
+	xmlns:t="/lib/hudson"
+	xmlns:f="/lib/form">
+	<!-- This Jelly script is used to produce the global configuration option. Jenkins uses a set of tag libraries to provide uniformity in forms. To determine where 
+		this tag is defined, first check the namespace URI, and then look under $JENKINS/views/. For example, <f:section> is defined in $JENKINS/views/lib/form/section.jelly. 
+		It's also often useful to just check other similar scripts to see what tags they use. Views are always organized according to its owner class, so it should be straightforward 
+		to find them. -->
+	<f:section title="${%Relution publisher plugin}">
 
-    Jenkins uses a set of tag libraries to provide uniformity in forms.
-    To determine where this tag is defined, first check the namespace URI,
-    and then look under $JENKINS/views/. For example, <f:section> is defined
-    in $JENKINS/views/lib/form/section.jelly.
+		<f:entry
+			title="${%Relution stores}"
+			field="endpoints">
+			<f:repeatableProperty
+				field="endpoints"
+				add="${%Add store}" />
+		</f:entry>
 
-    It's also often useful to just check other similar scripts to see what
-    tags they use. Views are always organized according to its owner class,
-    so it should be straightforward to find them.
-  -->
-  <f:section title="${%Relution Publisher}">
-  
-    <!--<f:entry title="${%Relution API endpoint}" -->
-    <!--		 field="apiEndpoint" -->
-	<!--		 description="${%The API endpoint to use for publishing.}"> -->
-	<!--	<f:textbox /> -->
-    <!-- </f:entry> -->
-    
-    <f:entry title="${%Relution API endpoint}" field="instance">
-		<f:repeatable var="instance" name="apiEndpoint" items="${descriptor.instances}" add="Add">
-			<table width="100%">
-				<f:entry title="${%Relution API endpoint}" 
-						 field="apiEndpoint"
-						 help="/plugin/Relution/help-apiEndpoint.html">
-					<f:textbox/>
-				</f:entry>
-				<f:entry title="${%Username}"
-    		 			 field="apiUsername"
-    		 			 help="/plugin/Relution/help-apiUsername.html">
-					<f:textbox />
-				</f:entry>
-				<f:entry title="${%Organization}"
-    		 			 field="apiOrganization"
-    		 			 help="/plugin/Relution/help-apiOrganization.html">
-					<f:textbox />
-				</f:entry>
-				<f:entry title="${%Password}"
-						 field="apiPassword"
-			 			 help="/plugin/Relution/help-apiPassword.html">
-					<f:password />		 
-				</f:entry>
-				<f:validateButton title="${%Test Connection}" 
-								  progress="${%Testing...}"
-   								  method="testConnection" 
-   								  with="apiEndpoint,apiUsername,apiOrganization,apiPassword" />
-   				<f:entry title="${%Relution Release Statuses}"
-        				 field="apiReleaseStatus"
-    	 			 	 help="/plugin/Relution/help-apiReleaseStatus.html">
-    	 			<f:select/>
-			     	<!-- <f:textbox /> -->
-				</f:entry>
-				<f:entry title="">
-					<div align="right">
-						<f:repeatableDeleteButton value="Delete"/>
-					</div>
-				</f:entry>
-			</table>
-		</f:repeatable>
-	</f:entry>
-	
-	<f:advanced title="${%Proxy settings}">
-    	<f:entry title="${%Host}"
-    			 field="proxyHost">
-			<f:textbox />
-		</f:entry>
-		
-		<f:entry title="${%Port}"
-				 field="proxyPort">
-			<f:textbox />		 
-		</f:entry>
-    </f:advanced>
-  </f:section>
+		<f:advanced title="${%Proxy settings}">
+			<f:entry
+				title="${%Host}"
+				field="proxyHost">
+				<f:textbox />
+			</f:entry>
+
+			<f:entry
+				title="${%Port}"
+				field="proxyPort">
+				<f:textbox />
+			</f:entry>
+		</f:advanced>
+	</f:section>
 </j:jelly>

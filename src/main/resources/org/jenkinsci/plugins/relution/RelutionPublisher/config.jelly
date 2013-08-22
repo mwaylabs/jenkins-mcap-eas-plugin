@@ -1,58 +1,78 @@
-<j:jelly xmlns:j="jelly:core" xmlns:st="jelly:stapler" xmlns:d="jelly:define" xmlns:l="/lib/layout" xmlns:t="/lib/hudson" xmlns:f="/lib/form">
-<!-- <script type="text/javascript"> -->
-<!-- 	function selectChanged(value) { -->
-<!-- 		document.form[0].submit(); -->
-<!--   		alert("you chose: " + document.form[0]); -->
-<!-- 	} -->
-<!-- </script> -->
-<f:entry>	
-	<f:repeatable var="instance" items="${descriptor.instances}" field="applications">
-		<table width="100%">
-		<f:entry title="${%Application file}"
-				 field="applicationFile"
-				 help="/plugin/Relution/help-applicationFile.html">
-			<f:textbox name="application.applicationFile" value="${application.applicationFile}" />
-		</f:entry>
-		<f:entry field="apiEndpointURL" 
-				 help="/plugin/Relution/help-apiEndpointURL.html"
-				 title="Relution configuration">
-   		 	<f:select/>
-		</f:entry>
-
-		<f:advanced>
-			<f:entry field="apiReleaseStatus"
-				 	 help="/plugin/Relution/help-apiReleaseStatus.html"
-					 title="${%Relution release status}">
-   				<f:select />
-			</f:entry>
-			<f:entry title="Application name (optional)"
-				 	 field="applicationName"
-				 	 help="/plugin/Relution/help-applicationName.html">
-				<f:textbox name="application.applicationName" value="${application.applicationName}" />
-			</f:entry>
-			<f:entry title="Application icon (optional)"
-					 field="applicationIcon"
-				 	 help="/plugin/Relution/help-applicationIcon.html">
-					 <f:textbox/>		 
-			</f:entry>
-			<f:entry field="applicationReleaseNotes"
-				 	 help="/plugin/Relution/help-applicationReleaseNotes.html"
-					 title="Application change log file (optional)">
-   				<f:textbox />
-			</f:entry>
-			<f:entry title="Description (optional)"
-    		 			 field="applicationDescription"
-    		 			 help="/plugin/Relution/help-applicationDescription.html">
-					<f:textbox />
+<j:jelly
+	xmlns:j="jelly:core"
+	xmlns:st="jelly:stapler"
+	xmlns:d="jelly:define"
+	xmlns:l="/lib/layout"
+	xmlns:t="/lib/hudson"
+	xmlns:f="/lib/form">
+	<!-- <script type="text/javascript"> -->
+	<!-- function selectChanged(value) { -->
+	<!-- document.form[0].submit(); -->
+	<!-- alert("you chose: " + document.form[0]); -->
+	<!-- } -->
+	<!-- </script> -->
+	<f:entry>
+		<f:repeatable
+			var="instance"
+			items="${descriptor.instances}"
+			field="applications">
+			<table width="100%">
+				<f:entry
+					title="${%Application file}"
+					field="applicationFile"
+					help="/plugin/Relution/help-applicationFile.html">
+					<f:textbox
+						name="application.applicationFile"
+						value="${application.applicationFile}" />
 				</f:entry>
-		</f:advanced>
-		
-		<f:entry>
-            <div align="right">
-            	<f:repeatableDeleteButton />
-            </div>
-        </f:entry>
-		</table>
-	</f:repeatable>
-</f:entry>
+				<f:entry
+					field="apiEndpoint"
+					help="/plugin/Relution/help-apiEndpointURL.html"
+					title="Relution configuration">
+					<f:select />
+				</f:entry>
+
+				<f:advanced>
+					<f:entry
+						field="apiReleaseStatus"
+						help="/plugin/Relution/help-apiReleaseStatus.html"
+						title="${%Relution release status}">
+						<f:select />
+					</f:entry>
+					<f:entry
+						title="Application name (optional)"
+						field="applicationName"
+						help="/plugin/Relution/help-applicationName.html">
+						<f:textbox
+							name="application.applicationName"
+							value="${application.applicationName}" />
+					</f:entry>
+					<f:entry
+						title="Application icon (optional)"
+						field="applicationIcon"
+						help="/plugin/Relution/help-applicationIcon.html">
+						<f:textbox />
+					</f:entry>
+					<f:entry
+						field="applicationReleaseNotes"
+						help="/plugin/Relution/help-applicationReleaseNotes.html"
+						title="Application change log file (optional)">
+						<f:textbox />
+					</f:entry>
+					<f:entry
+						title="Description (optional)"
+						field="applicationDescription"
+						help="/plugin/Relution/help-applicationDescription.html">
+						<f:textbox />
+					</f:entry>
+				</f:advanced>
+
+				<f:entry>
+					<div align="right">
+						<f:repeatableDeleteButton />
+					</div>
+				</f:entry>
+			</table>
+		</f:repeatable>
+	</f:entry>
 </j:jelly>

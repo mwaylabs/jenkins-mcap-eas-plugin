@@ -30,24 +30,27 @@ import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
 import hudson.util.ListBoxModel;
 
+import org.jenkinsci.plugins.relution.entities.ApiEndpoint;
+import org.jenkinsci.plugins.relution.entities.ReleaseStatus;
 import org.kohsuke.stapler.DataBoundConstructor;
 
-import java.net.URI;
 import java.util.List;
-import java.util.Locale;
 
 import javax.inject.Inject;
 
 
 public class Application extends AbstractDescribableImpl<Application> {
 
-    private String applicationFile;
-    private String applicationIcon;
-    private String apiReleaseStatus;
-    private String apiEndpointURL;
-    private String applicationName;
-    private String applicationReleaseNotes;
-    private String applicationDescription;
+    private String      applicationFile;
+    private String      applicationIcon;
+    private String      apiReleaseStatus;
+
+    private String      apiEndpointJson;
+    private ApiEndpoint apiEndpoint;
+
+    private String      applicationName;
+    private String      applicationReleaseNotes;
+    private String      applicationDescription;
 
     /**
      * These constructor will be executed every time when the save/submit button will be triggered in the Jenkins. 
@@ -57,30 +60,37 @@ public class Application extends AbstractDescribableImpl<Application> {
      * @param apiReleaseStatus String Representation of the ReleaseState to the app will be published.
      */
     @DataBoundConstructor
-    public Application(final String apiEndpointURL, final String applicationFile, final String applicationIcon, final String apiReleaseStatus,
+    public Application(final String apiEndpoint, final String applicationFile, final String applicationIcon, final String apiReleaseStatus,
             final String applicationName, final String applicationReleaseNotes, final String applicationDescription) {
-        this.setApiEndpointURL(apiEndpointURL);
+
+        this.setApiEndpoint(apiEndpoint);
         this.setApplicationFile(applicationFile);
         this.setApplicationIcon(applicationIcon);
         this.setApiReleaseStatus(apiReleaseStatus);
         this.setApplicationName(applicationName);
         this.setApplicationReleaseNotes(applicationReleaseNotes);
-        System.out.println("Constructor: " + applicationDescription);
         this.setApplicationDescription(applicationDescription);
+
+        System.out.println("Initialized application " + this.toString());
     }
 
     /**
      * @return URL to which your app will connect.
      */
-    public String getApiEndpointURL() {
-        return this.apiEndpointURL;
+    public String getApiEndpoint() {
+        return this.apiEndpointJson;
     }
 
     /**
      * @param apiEndpointURL Communication endpoint to set.
      */
-    public void setApiEndpointURL(final String apiEndpointURL) {
-        this.apiEndpointURL = apiEndpointURL;
+    public void setApiEndpoint(final String jsonString) {
+        this.apiEndpointJson = jsonString;
+        this.apiEndpoint = ApiEndpoint.fromJson(jsonString);
+    }
+
+    public ApiEndpoint getEndpoint() {
+        return this.apiEndpoint;
     }
 
     /**
@@ -169,6 +179,14 @@ public class Application extends AbstractDescribableImpl<Application> {
         this.applicationDescription = applicationDescription;
     }
 
+    @Override
+    public String toString() {
+
+        return String.format("%s -> %s",
+                this.applicationFile,
+                this.apiEndpoint.toString());
+    }
+
     /**
      * Descriptor for {@link DescriptorImpl}. Used as a singleton.
      * The class is marked as public so that it can be accessed from views.
@@ -195,23 +213,13 @@ public class Application extends AbstractDescribableImpl<Application> {
          * Fills the DropDownList on the configuration page of an job. The values are read out of the GlobalConfiguration.
          * @return List of URLs which are entered in the GlobalConfigurationScreen
          */
-        public ListBoxModel doFillApiEndpointURLItems() {
-            final List<GlobalConfigurationImpl> configurations = this.globalConfiguration.getInstances();
+        public ListBoxModel doFillApiEndpointItems() {
+            final List<ApiEndpoint> endpoints = this.globalConfiguration.getEndpoints();
             final ListBoxModel items = new ListBoxModel();
 
             try {
-                for (final GlobalConfigurationImpl config : configurations) {
-
-                    final URI uri = new URI(config.getApiEndpoint());
-
-                    final String displayName = String.format(
-                            Locale.ENGLISH,
-                            "%s — %s@%s",
-                            uri.getHost(),
-                            config.getApiUsername(),
-                            config.getApiOrganization());
-
-                    items.add(displayName, config.getApiEndpoint());
+                for (final ApiEndpoint endpoint : endpoints) {
+                    items.add(endpoint.toString(), endpoint.toJson().toString());
                 }
             } catch (final Exception ex) {
                 ex.printStackTrace();
@@ -254,9 +262,7 @@ public class Application extends AbstractDescribableImpl<Application> {
          */
         public ListBoxModel doFillApiReleaseStatusItems() {
             final ListBoxModel items = new ListBoxModel();
-            items.add("DEVELOPMENT");
-            items.add("REVIEW");
-            items.add("RELEASE");
+            ReleaseStatus.fill(items);
             return items;
         }
     }

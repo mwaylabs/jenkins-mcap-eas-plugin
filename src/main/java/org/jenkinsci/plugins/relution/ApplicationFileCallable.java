@@ -110,7 +110,7 @@ public class ApplicationFileCallable implements FileCallable<Boolean> {
 
             final File applicationFile = this.getApplicationFile(fileSet);
 
-            this.log("Retrieving communicator for configured URI '%s'...", this.application.getApiEndpointURL());
+            this.log("Retrieving communicator for endpoint '%s'...", this.application.getEndpoint().toString());
             final RelutionCommunicator communicator = this.getCommunicator(this.application);
 
             if (communicator == null) {
@@ -183,7 +183,7 @@ public class ApplicationFileCallable implements FileCallable<Boolean> {
 
         } catch (final Exception e) {
             this.build.setResult(Result.FAILURE);
-            this.log(e.getMessage());
+            this.log(e.toString());
             e.printStackTrace();
         }
         return false;
@@ -203,7 +203,7 @@ public class ApplicationFileCallable implements FileCallable<Boolean> {
         for (int index = 0; index < this.communicators.size(); index++) {
             final RelutionCommunicator communicator = this.communicators.get(index);
 
-            if (communicator.getRequestFactory().getRelutionApiUrl().equals(application.getApiEndpointURL())) {
+            if (communicator.hasEndpoint(application.getEndpoint())) {
                 return communicator;
             }
         }

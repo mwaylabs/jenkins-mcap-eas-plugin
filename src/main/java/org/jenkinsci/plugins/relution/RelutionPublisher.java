@@ -38,6 +38,7 @@ import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
 
 import org.apache.commons.lang.StringUtils;
+import org.jenkinsci.plugins.relution.entities.ApiEndpoint;
 import org.jenkinsci.plugins.relution.net.RequestFactory;
 import org.kohsuke.stapler.DataBoundConstructor;
 
@@ -45,7 +46,6 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import javax.inject.Inject;
 
@@ -92,16 +92,19 @@ public class RelutionPublisher extends Recorder {
     @Override
     public boolean perform(final AbstractBuild build, final Launcher launcher, final BuildListener listener) throws IOException, InterruptedException {
         final List<RelutionCommunicator> communicators = new ArrayList<RelutionCommunicator>();
-        final Map<String, String> loginCredentials = this.getDescriptor().getGlobalConfiguration().getLoginCredentials();
-        for (final Application instance : this.applications) {
-            for (final Map.Entry<String, String> entry : loginCredentials.entrySet()) {
-                if (entry.getKey().equals(instance.getApiEndpointURL())) {
-                    final String[] credentials = entry.getValue().split(":");
-                    final RelutionCommunicator communicator = new RelutionCommunicator(entry.getKey(), credentials[0], credentials[2], credentials[1],
-                            this.getDescriptor().getGlobalConfiguration().getProxyHost(), instance.getApiReleaseStatus(),
-                            this.getDescriptor().getGlobalConfiguration().getProxyPort(), new RequestFactory());
-                    communicators.add(communicator);
-                }
+        final GlobalConfigurationImpl config = this.getDescriptor().getGlobalConfiguration();
+
+        for (final Application application : this.applications) {
+            final ApiEndpoint endpoint = application.getEndpoint();
+
+            if (endpoint != null) {
+                final RelutionCommunicator communicator = new RelutionCommunicator(
+                        endpoint,
+                        config.getProxyHost(),
+                        config.getProxyPort(),
+                        new RequestFactory());
+
+                communicators.add(communicator);
             }
         }
 
