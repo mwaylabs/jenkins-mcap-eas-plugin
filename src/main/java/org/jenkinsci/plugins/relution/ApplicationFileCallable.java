@@ -25,11 +25,6 @@
 
 package org.jenkinsci.plugins.relution;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
-
 import hudson.FilePath.FileCallable;
 import hudson.Util;
 import hudson.model.BuildListener;
@@ -37,20 +32,29 @@ import hudson.model.Result;
 import hudson.model.AbstractBuild;
 import hudson.remoting.VirtualChannel;
 
+import org.apache.commons.lang.StringUtils;
+import org.apache.http.ParseException;
+import org.apache.http.client.ClientProtocolException;
 import org.apache.tools.ant.types.FileSet;
 import org.jenkinsci.plugins.relution.entities.ApplicationInformation;
 import org.jenkinsci.plugins.relution.entities.ShortApplicationInformation;
+import org.jenkinsci.plugins.relution.json.ApiApp;
+import org.jenkinsci.plugins.relution.json.ApiFile;
+import org.jenkinsci.plugins.relution.json.ApiResponse;
+import org.jenkinsci.plugins.relution.json.ApiVersion;
+import org.jenkinsci.plugins.relution.json.UploadResponse;
+import org.jenkinsci.plugins.relution.net.Request;
+import org.jenkinsci.plugins.relution.net.RequestFactory;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.UUID;
 
 
 @SuppressWarnings("serial")
 public class ApplicationFileCallable implements FileCallable<Boolean> {
-
-    private static final String              ERROR_VERSION_ALREADY_EXISTS = "Version already exists. Please delete the old one to upload the same version again.";
 
     @SuppressWarnings("rawtypes")
     private final AbstractBuild              build;
@@ -118,65 +122,92 @@ public class ApplicationFileCallable implements FileCallable<Boolean> {
                 this.build.setResult(Result.FAILURE);
                 return false;
             }
-            this.log("Communicator retrieved, will upload to %s", communicator.getRequestFactory().getRelutionApiUrl());
+            final RequestFactory requestFactory = communicator.getRequestFactory();
+            requestFactory.setLogger(this.listener.getLogger());
+
+            this.log("Communicator retrieved, will upload to %s", requestFactory.getRelutionApiUrl());
 
             this.log("Preparing to deploy '%s', retrieving application UUID...", applicationFile.getName());
-            final ShortApplicationInformation app = new ShortApplicationInformation(UUID.randomUUID().toString());
+            final ShortApplicationInformation info = new ShortApplicationInformation(UUID.randomUUID().toString());
 
-            if (app == null || app.getUUID() == null) {
+            if (info == null || info.getUUID() == null) {
                 this.log("Failed to obtain application UUID");
                 this.build.setResult(Result.FAILURE);
                 return false;
             }
-            this.log("Obtained application UUID {%s}", app.getUUID());
+            this.log("Obtained application UUID {%s}", info.getUUID());
 
             this.log("Upload application asset and retrieve token...");
-            final String uploadedAssetToken = communicator.uploadApplicationAsset("", applicationFile);
+            final ApiFile file = this.uploadApplicationAsset(requestFactory, "", applicationFile);
 
-            if (uploadedAssetToken == null || uploadedAssetToken.length() == 0) {
+            if (file == null || StringUtils.isBlank(file.uuid)) {
                 this.log("Upload failed, returned token is empty");
                 this.build.setResult(Result.FAILURE);
                 return false;
             }
-            this.log("Token {%s} for application asset acquired", uploadedAssetToken);
+            this.log("Token {%s} for application asset acquired", file.uuid);
 
             this.log("Retrieving application object...");
-            final String appObject = communicator.analyzeUploadedApplication(
-                    uploadedAssetToken,
-                    app.getUUID(),
-                    this.application.getApplicationIcon(),
-                    this.application.getApiReleaseStatus(),
-                    this.application.getApplicationName(),
-                    this.application.getApplicationReleaseNotes(),
-                    this.application.getApplicationDescription(),
-                    fileSet,
-                    communicator);
+            final Request request = requestFactory.createAnalyzeUploadedApplication(file.uuid, info.getUUID());
 
-            if (appObject == null || appObject.length() == 0) {
+            final String json = requestFactory.send(request);
+            final ApiResponse response = ApiResponse.fromJson(json);
+
+            if (response.status != 0) {
+                this.log("Error retrieving application object: %s", response.message);
+                this.build.setResult(Result.FAILURE);
+                return false;
+            }
+
+            final ApiApp app = this.getApp(response, file.uuid);
+
+            if (app == null) {
                 this.log("Failed to retrieve application object.");
                 this.build.setResult(Result.FAILURE);
                 return false;
             }
 
-            if (appObject.equals(ERROR_VERSION_ALREADY_EXISTS)) {
-                this.log("A file with the same version already exists. You must remove this version before you can upload it again.");
-                this.build.setResult(Result.UNSTABLE);
+            final ApiVersion version = this.getVersion(app, file.uuid);
+
+            if (version == null) {
+                this.log("Failed to retrieve version object.");
+                this.build.setResult(Result.FAILURE);
                 return false;
             }
 
-            final JsonParser parser = new JsonParser();
-            final JsonElement element = parser.parse(appObject);
-            final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-            this.log("Application object retrieved:\n%s", gson.toJson(element));
+            if (!StringUtils.isBlank(this.application.getApplicationName())) {
+                for (final String key : version.name.keySet()) {
+                    version.name.put(key, this.application.getApplicationName());
+                }
+            }
+
+            if (!StringUtils.isBlank(this.application.getApiReleaseStatus())) {
+                version.releaseStatus = this.application.getApiReleaseStatus();
+            }
+
+            if (!StringUtils.isBlank(this.application.getApplicationIcon())) {
+                final ApiFile icon = this.upload(requestFactory, f, this.application.getApplicationIcon());
+                version.icon = icon;
+            }
+
+            this.log("Application object retrieved:\n%s", version.toString());
 
             this.log("Saving application information...");
-            final ApplicationInformation information = communicator.saveApplicationInformation(appObject);
+            ApplicationInformation information;
 
-            if (information == null) {
+            if (app.uuid == null) {
+                information = this.saveApplicationInformation(requestFactory, app);
+            } else {
+                version.appUuid = app.uuid;
+                information = this.saveVersionInformation(requestFactory, version);
+            }
+
+            if (information == null || !information.getPublished()) {
                 this.log("Failed to save application information.");
                 this.build.setResult(Result.FAILURE);
                 return false;
             }
+
             this.log("Application information saved");
             this.build.setResult(Result.SUCCESS);
             return true;
@@ -208,6 +239,86 @@ public class ApplicationFileCallable implements FileCallable<Boolean> {
             }
         }
         return null;
+    }
+
+    private ApiApp getApp(final ApiResponse response, final String token) {
+
+        for (final ApiApp app : response.results) {
+            for (final ApiVersion version : app.versions) {
+                if (version.uuid == null && version.file != null && token.equals(version.file.uuid)) {
+                    return app;
+                }
+            }
+        }
+        return null;
+    }
+
+    private ApiVersion getVersion(final ApiApp app, final String token) {
+
+        for (final ApiVersion version : app.versions) {
+            if (version.uuid == null && version.file != null && token.equals(version.file.uuid)) {
+                return version;
+            }
+        }
+        return null;
+    }
+
+    private ApiFile upload(final RequestFactory requestFactory, final File baseDir, final String path)
+            throws ParseException, ClientProtocolException, URISyntaxException, IOException {
+
+        final FileSet fileSet = Util.createFileSet(baseDir, path);
+
+        // If the file does not exist, consider the build as "not built" 
+        if (fileSet.getDirectoryScanner().getIncludedFilesCount() < 1) {
+            this.log("The configured application file does not exist, no files to deploy");
+            this.build.setResult(Result.NOT_BUILT);
+            return null;
+        }
+
+        final File file = this.getApplicationFile(fileSet);
+        return this.uploadApplicationAsset(requestFactory, "", file);
+    }
+
+    private ApiFile uploadApplicationAsset(final RequestFactory requestFactory, final String uploadToken, final File file)
+            throws URISyntaxException, ParseException, ClientProtocolException, IOException {
+
+        final Request request = requestFactory.createUploadRequest(uploadToken, file);
+        final String json = requestFactory.send(request);
+        final UploadResponse response = UploadResponse.fromJson(json);
+
+        if (response.status != 0) {
+            return null;
+        }
+
+        return response.results.get(0);
+    }
+
+    private ApplicationInformation saveApplicationInformation(final RequestFactory requestFactory, final ApiApp app)
+            throws URISyntaxException, ParseException, ClientProtocolException, IOException {
+
+        final Request request = requestFactory.createUploadedApplicationInformationRequest(app);
+        final String json = requestFactory.send(request);
+        final ApiResponse response = ApiResponse.fromJson(json);
+
+        System.out.println("[uploadedApplicationInformation] " + response.toString());
+
+        final ApplicationInformation information = new ApplicationInformation();
+        information.setPublished(response.status == 0);
+        return information;
+    }
+
+    private ApplicationInformation saveVersionInformation(final RequestFactory requestFactory, final ApiVersion version)
+            throws URISyntaxException, ParseException, ClientProtocolException, IOException {
+
+        final Request request = requestFactory.createUploadedVersionInformationRequest(version);
+        final String json = requestFactory.send(request);
+        final ApiResponse response = ApiResponse.fromJson(json);
+
+        System.out.println("[uploadedApplicationInformation] " + response.toString());
+
+        final ApplicationInformation information = new ApplicationInformation();
+        information.setPublished(response.status == 0);
+        return information;
     }
 
     private void log(final String format, final Object... args) {

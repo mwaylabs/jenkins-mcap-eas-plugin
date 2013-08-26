@@ -39,23 +39,29 @@ import org.apache.http.impl.client.DefaultHttpClient;
 import org.apache.http.params.CoreProtocolPNames;
 import org.apache.http.util.EntityUtils;
 import org.jenkinsci.plugins.relution.entities.ApiEndpoint;
+import org.jenkinsci.plugins.relution.json.ApiApp;
+import org.jenkinsci.plugins.relution.json.ApiVersion;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.PrintStream;
 import java.net.URISyntaxException;
 import java.nio.charset.Charset;
 
 
 public class RequestFactory {
 
-    private final static Charset CHARSET               = Charset.forName("UTF-8");
-    private final static String  URL_APP_STORE_ITEMS   = "apps";
-    private final static String  URL_TEMP_FILE         = "files";
-    private final static String  URL_RESOURCE_ANALYZER = "apps/fromFile";
+    private final static Charset CHARSET                   = Charset.forName("UTF-8");
+    private final static String  URL_APP_STORE_ITEMS       = "apps";
+    private final static String  URL_APP_STORE_APP_VERSION = "versions";
+    private final static String  URL_TEMP_FILE             = "files";
+    private final static String  URL_RESOURCE_ANALYZER     = "apps/fromFile";
 
     private BasicCookieStore     relutionCookieStore;
     private HttpHost             relutionProxyHost;
     private ApiEndpoint          endpoint;
+
+    private PrintStream          logger;
 
     /**
      * send the request with org.apache.http
@@ -77,15 +83,19 @@ public class RequestFactory {
             client.setCookieStore(this.relutionCookieStore);
 
             final HttpRequestBase httpRequest = request.createHttpRequest();
-            System.out.println("Request > " + httpRequest.toString());
+            this.log("Request >>> %s", httpRequest.toString());
 
             final String response = EntityUtils.toString(client.execute(httpRequest).getEntity(), CHARSET);
-            System.out.println("Response < " + response);
+            this.log("Response <<< %s", response);
             return response;
 
         } finally {
             client.getConnectionManager().shutdown();
         }
+    }
+
+    public void setLogger(final PrintStream logger) {
+        this.logger = logger;
     }
 
     private String getUrl(final String path, final String... subs) {
@@ -138,6 +148,8 @@ public class RequestFactory {
         final MultipartEntity entity = new MultipartEntity();
         entity.addPart("file", new FileBody(file));
         request.setEntity(entity);
+
+        this.log("createUploadRequest: uploadToken=%s, file=%s", uploadToken, file.getAbsolutePath());
         return request;
     }
 
@@ -149,6 +161,19 @@ public class RequestFactory {
      */
     public Request createAnalyzeUploadedApplication(final String uploadToken, final String UUID) {
         final Request request = this.getBaseRequest(Request.Method.POST, URL_RESOURCE_ANALYZER, uploadToken);
+
+        this.log("createAnalyzeUploadedApplication: uploadToken=%s, UUID=%s", uploadToken, UUID);
+        return request;
+    }
+
+    public Request createUploadedApplicationInformationRequest(final ApiApp app) {
+        final Request request = this.getBaseRequest(Request.Method.POST, URL_APP_STORE_ITEMS);
+        request.addHeader("Content-Type", "application/json");
+
+        final StringEntity entity = new StringEntity(app.toString(), CHARSET);
+        request.setEntity(entity);
+
+        this.log("createUploadedApplicationInformationRequest: appObject=%s", app.toString());
         return request;
     }
 
@@ -157,11 +182,14 @@ public class RequestFactory {
      * @param appObject The APIObject returned in an previous step 
      * @return request could be send aginst the relution to upload the appObject
      */
-    public Request createUploadedApplicationInformationRequest(final String appObject) {
-        final Request request = this.getBaseRequest(Request.Method.POST, URL_APP_STORE_ITEMS);
+    public Request createUploadedVersionInformationRequest(final ApiVersion version) {
+        final Request request = this.getBaseRequest(Request.Method.POST, URL_APP_STORE_ITEMS, version.appUuid, URL_APP_STORE_APP_VERSION);
         request.addHeader("Content-Type", "application/json");
-        final StringEntity entity = new StringEntity(appObject, CHARSET);
+
+        final StringEntity entity = new StringEntity(version.toString(), CHARSET);
         request.setEntity(entity);
+
+        this.log("createUploadedApplicationInformationRequest: appObject=%s", version.toString());
         return request;
     }
 
@@ -255,5 +283,14 @@ public class RequestFactory {
      */
     public void setRelutionOrganization(final String relutionOrganization) {
         this.endpoint.setOrganization(relutionOrganization);
+    }
+
+    private void log(final String format, final Object... args) {
+
+        if (this.logger != null) {
+            final String text = String.format(format, args);
+            final String message = String.format("[Request Factory] %s", text);
+            this.logger.println(message);
+        }
     }
 }
