@@ -12,6 +12,11 @@
 	<!-- } -->
 	<!-- </script> -->
 	<f:entry>
+		<div class="error" style="font-weight:100;margin-bottom:30px;">
+			This plugin has been deprecated. Please add <b>Deploy to Relution Enterprise Appstore
+			</b> as a post-build action (the one that isn't deprecated).<br/><b>Hint:</b> Copy your
+			settings to the new plugin, then delete this configuration.
+		</div>
 		<f:repeatable
 			var="instance"
 			items="${descriptor.instances}"

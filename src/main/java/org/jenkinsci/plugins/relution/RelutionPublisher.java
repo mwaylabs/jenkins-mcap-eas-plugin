@@ -36,11 +36,13 @@ import hudson.tasks.BuildStepDescriptor;
 import hudson.tasks.BuildStepMonitor;
 import hudson.tasks.Publisher;
 import hudson.tasks.Recorder;
+import hudson.util.FormValidation;
 
 import org.apache.commons.lang.StringUtils;
 import org.jenkinsci.plugins.relution.entities.ApiEndpoint;
 import org.jenkinsci.plugins.relution.net.RequestFactory;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -178,6 +180,10 @@ public class RelutionPublisher extends Recorder {
          */
         public List<Application> getInstances() {
             return this.instances;
+        }
+
+        public FormValidation doCheckApplications(@QueryParameter final String value) {
+            return FormValidation.error("This plugin is deprecated, please use the new version.");
         }
 
         /**

@@ -10,11 +10,19 @@
 		It's also often useful to just check other similar scripts to see what tags they use. Views are always organized according to its owner class, so it should be straightforward 
 		to find them. -->
 	<f:section title="Relution publisher plugin (deprecated)">
-
 		<f:entry
+
 			title="${%Relution stores}"
 			field="endpoints"
 			help="/plugin/Relution/help-endpoints.html">
+			<div class="error" style="font-weight:100;margin-bottom:30px;">
+				This plugin has been deprecated. The new plugin is called <b>Relution Enterprise
+				Appstore Publisher plugin</b>. If you haven't done so yet, download and install the
+				new plugin. Configure your stores in the section <i>Relution Enterprise Appstore
+				Publisher plugin</i>. <b>Hint:</b> Copy your settings to the new plugin before
+				deleting the old plugin. <b>Do not forget</b> to copy settings for <b>your project
+				settings</b>.
+			</div>
 			<f:repeatableProperty
 				field="endpoints"
 				add="${%Add store}" />
