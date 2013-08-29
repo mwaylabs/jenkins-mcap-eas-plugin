@@ -28,11 +28,13 @@ package org.jenkinsci.plugins.relution;
 import hudson.Extension;
 import hudson.model.AbstractDescribableImpl;
 import hudson.model.Descriptor;
+import hudson.util.FormValidation;
 import hudson.util.ListBoxModel;
 
-import org.jenkinsci.plugins.relution.entities.ApiEndpoint;
 import org.jenkinsci.plugins.relution.entities.ReleaseStatus;
+import org.jenkinsci.plugins.relution.entities.ApiEndpoint;
 import org.kohsuke.stapler.DataBoundConstructor;
+import org.kohsuke.stapler.QueryParameter;
 
 import java.util.List;
 
@@ -209,6 +211,10 @@ public class Application extends AbstractDescribableImpl<Application> {
             return "";
         }
 
+        public FormValidation doCheckApplicationFile(@QueryParameter final String value) {
+            return FormValidation.error("This plugin is deprecated, please use the new version.");
+        }
+
         /**
          * Fills the DropDownList on the configuration page of an job. The values are read out of the GlobalConfiguration.
          * @return List of URLs which are entered in the GlobalConfigurationScreen
@@ -226,36 +232,6 @@ public class Application extends AbstractDescribableImpl<Application> {
             }
             return items;
         }
-
-        //        /**
-        //         * Validates if the enntry in the Inputfield is empty/not empty.
-        //         * @param value value of the input field applicationName.
-        //         * @return true if an entry exists, false if no entry exists.
-        //         * @throws IOException
-        //         * @throws ServletException
-        //         */
-        //        public FormValidation doCheckApplicationName(@QueryParameter final String value)
-        //                throws IOException, ServletException {
-        //            if (value.length() == 0) {
-        //            	return FormValidation.error(Messages.Relution_appName());
-        //            }
-        //            return FormValidation.ok();
-        //        }
-
-        //        /**
-        //         * Validates if the entry in the Inputfield is empty/no empty.
-        //         * @param value value of the input field applicationIcon.
-        //         * @return true if an entry exists, false if no entry exists.
-        //         * @throws IOException
-        //         * @throws ServletException
-        //         */
-        //        public FormValidation doCheckApplicationIcon(@QueryParameter final String value)
-        //                throws IOException, ServletException {
-        //            if (value.length() == 0) {
-        //            	return FormValidation.error(Messages.Relution_apiIconIsRequired());
-        //            }
-        //            return FormValidation.ok();
-        //        }
 
         /**
          * @return List of ReleaseStatuses that the actual app could have.

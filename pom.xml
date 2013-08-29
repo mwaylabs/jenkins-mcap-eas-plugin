@@ -1,37 +1,22 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+<project
+	xmlns="http://maven.apache.org/POM/4.0.0"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<modelVersion>4.0.0</modelVersion>
 	<parent>
 		<groupId>org.jenkins-ci.plugins</groupId>
 		<artifactId>plugin</artifactId>
-		<version>1.526</version><!-- which version of Jenkins is this plugin 
-			built against? -->
+		<version>1.526</version><!-- which version of Jenkins is this plugin built against? -->
 	</parent>
 
 	<groupId>org.jenkins-ci.plugins</groupId>
 	<artifactId>Relution</artifactId>
 	<version>2.0-SNAPSHOT</version>
+	<name>Relution publisher plugin (deprecated)</name>
 	<packaging>hpi</packaging>
-	<!-- 
-	<build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
-            </plugin>
-        </plugins>
-    </build>
-    -->
-    <!-- get every artifact through repo.jenkins-ci.org, which proxies all the 
-		artifacts that we need -->
+	<!-- <build> <plugins> <plugin> <groupId>org.apache.maven.plugins</groupId> <artifactId>maven-javadoc-plugin</artifactId> <executions> <execution> <id>attach-javadocs</id> 
+		<goals> <goal>jar</goal> </goals> </execution> </executions> </plugin> </plugins> </build> -->
+	<!-- get every artifact through repo.jenkins-ci.org, which proxies all the artifacts that we need -->
 	<repositories>
 		<repository>
 			<id>repo.jenkins-ci.org</id>
@@ -94,8 +79,7 @@
 	</dependencies>
 
 	<properties>
-		<!-- explicitly specifying the latest version here because one we get from 
-			the parent POM tends to lag behind a bit -->
+		<!-- explicitly specifying the latest version here because one we get from the parent POM tends to lag behind a bit -->
 		<maven-hpi-plugin.version>1.97</maven-hpi-plugin.version>
 	</properties>
 </project>

@@ -222,6 +222,10 @@ public class ApiEndpoint extends AbstractDescribableImpl<ApiEndpoint> {
             return items;
         }
 
+        public FormValidation doCheckUrl(@QueryParameter final String value) {
+            return FormValidation.error("This plugin is deprecated, please configure the new version.");
+        }
+
         /**
          * Validates the given Credentials are right
          * @param url URL to connect to
